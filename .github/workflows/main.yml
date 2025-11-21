@@ -26,7 +26,7 @@ jobs:
 
       - name: 📥 Install dependencies
         # 安装项目依赖
-        run: npm install
+        run: npm install --loglevel verbose
 
       - name: 🔨 Run Electron Build
         # 执行 package.json 中的构建命令
