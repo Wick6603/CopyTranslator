@@ -1,0 +1,51 @@
+name: Electron Build and Release
+
+on:
+  # 当代码推送到 main 分支时触发
+  push:
+    branches:
+      - main
+  # 也可以手动触发
+  workflow_dispatch:
+
+jobs:
+  build:
+    # 使用最新的 Ubuntu 运行器
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⬇️ Checkout code
+        # 检出代码
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Setup Node.js
+        # 设置 Node.js 环境，版本号请根据项目需要调整
+        uses: actions/setup-node@v4
+        with:
+          node-version: '16' # Electron 8.x.x 建议使用 Node.js 12/14/16/18 LTS，这里选用 16
+
+      - name: 📥 Install dependencies
+        # 安装项目依赖
+        run: npm install
+
+      - name: 🔨 Run Electron Build
+        # 执行 package.json 中的构建命令
+        # 此命令将编译 Vue 应用，并使用 electron-builder 打包成可执行文件。
+        # 默认情况下，electron-builder 会将输出放在 dist_electron 文件夹。
+        # 🚨 注意：如果您的目标平台是 Windows 或 macOS，最好在对应的 Runner 上构建，
+        # 但对于 Linux 构建，或为了生成跨平台的安装包（如果配置正确），这个步骤通常可以运行。
+        run: npm run electron:build
+
+      - name: 📦 Archive Build Artifacts
+        # 将生成的构建目录打包为可下载的 Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          # 打包文件夹的名称，通常是 electron-builder 的默认输出目录
+          name: electron-build-output
+          # 文件夹路径。根据您的 electron-builder 配置，可能是 dist 或 dist_electron
+          path: dist_electron
+          # 可选：设置过期时间（天）
+          retention-days: 7
+
+      - name: ✅ Build finished
+        run: echo "Electron build artifacts are ready for download!"
