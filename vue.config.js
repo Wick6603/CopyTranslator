@@ -58,51 +58,13 @@ module.exports = {
           target: [
             {
               target: "nsis",
-              arch: ["x64"],
+              arch: ["arm64"],
             },
             {
               target: "zip",
-              arch: ["x64"],
+              arch: ["arm64"],
             },
           ],
-        },
-        linux: {
-          target: [
-            {
-              target: "AppImage",
-              arch: ["x64"],
-            },
-            {
-              target: "deb",
-              arch: ["x64"],
-            },
-            {
-              target: "rpm",
-              arch: ["x64"],
-            },
-          ],
-          maintainer: "ziqiang_xu@qq.com",
-          icon: osSpec.iconName,
-          category: "Education",
-          // https://www.electron.build/configuration/linux#debian-package-options
-          desktop: {
-            Icon: "/opt/copytranslator/resources/linux-icon/icon.png",
-          },
-        },
-        deb: {
-          depends: ["libpng16-16"],
-        },
-        rpm: {
-          depends: ["libpng"],
-        },
-        mac: {
-          target: [
-            {
-              target: "default",
-              arch: ["x64"],
-            },
-          ],
-          icon: osSpec.iconName,
         },
         nsis: {
           installerIcon: osSpec.iconName,
