@@ -15,7 +15,7 @@ jobs:
     # ⚠️ 关键步骤：使用 Windows ARM64 运行器
     # 注意：GitHub Actions 免费额度可能不包含 windows-arm64 运行器。
     # 您可能需要是企业用户或付费用户才能使用。如果失败，请联系 GitHub 支持。
-    runs-on: windows-arm64 
+    runs-on: windows-11-arm
 
     steps:
       - name: ⬇️ Checkout code
