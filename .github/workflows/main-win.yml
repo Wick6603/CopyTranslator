@@ -1,0 +1,68 @@
+name: Windows ARM64 Electron Build
+
+on:
+  # 当代码推送到 main 分支时触发
+  push:
+    branches:
+      - main
+  # 允许手动触发
+  workflow_dispatch:
+
+jobs:
+  build_win_arm64:
+    name: Build Windows ARM64 App
+    
+    # ⚠️ 关键步骤：使用 Windows ARM64 运行器
+    # 注意：GitHub Actions 免费额度可能不包含 windows-arm64 运行器。
+    # 您可能需要是企业用户或付费用户才能使用。如果失败，请联系 GitHub 支持。
+    runs-on: windows-arm64 
+
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Setup Node.js
+        # 设置 Node.js 环境，版本号请根据项目需要调整
+        uses: actions/setup-node@v4
+        with:
+          node-version: '16' # 保持与项目兼容的 LTS 版本
+
+      - name: 📥 Install dependencies
+        # 安装项目依赖。在 Windows 上运行
+        run: npm install
+
+      - name: ⚙️ Rebuilding Native Modules (Optional, but recommended for Arm64)
+        # 这一步是为了确保原生模块（如 iohook, nut-js）针对当前的 Electron 8.2.3 / Windows / ARM64 环境正确编译
+        # 使用您 package.json 中类似的方式重新编译（如果需要的话，但通常 electron:build 会触发 postinstall/install-app-deps）
+        # 如果 electron:build 命令足够，可以删除此步骤
+        run: npm rebuild --runtime=electron --target=8.2.3 --disturl=https://atom.io/download/atom-shell --abi=76 --arch=arm64
+        # ⚠️ 注意：如果您的 package.json 有一个专门的 arm64 rebuild 脚本，请使用它。
+
+      - name: 🔨 Run Electron Build
+        # 执行 package.json 中的构建命令
+        # vue-cli-service electron:build 会自动使用 electron-builder
+        # 默认情况下，如果未指定 arch，它将根据运行器架构 (arm64) 构建。
+        run: npm run electron:build --loglevel verbose
+
+      - name: 📦 Find Build Output Directory
+        # 查找 electron-builder 的默认输出目录 'dist_electron'
+        id: find_output
+        run: |
+          $buildDir = "dist_electron"
+          if (-not (Test-Path -Path $buildDir -PathType Container)) {
+            Write-Host "Default build directory '$buildDir' not found. This might be normal depending on your builder configuration."
+          } else {
+            Write-Host "::set-output name=output_path::$buildDir"
+            Write-Host "Build directory found: $buildDir"
+          }
+        shell: powershell
+
+      - name: 📤 Upload Build Artifacts
+        # 将生成的构建目录打包为可下载的 Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          # 打包的名称将包含运行器架构，方便区分
+          name: windows-arm64-build-artifacts
+          # 文件夹路径。这里使用默认的 'dist_electron' 目录
+          path: dist_electron
+          retention-days: 7
