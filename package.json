@@ -115,12 +115,10 @@
       "electron-76"
     ],
     "platforms": [
-      "win32",
-      "darwin",
-      "linux"
+      "win32"
     ],
     "arches": [
-      "x64"
+      "arm64"
     ]
   }
 }
